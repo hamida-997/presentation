@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caramellize Bakery - Project Presentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #D4845C;
+            --secondary: #8B4513;
+            --accent: #FFB347;
+            --dark: #2C1810;
+            --cream: #FFF8F0;
+            --white: #FFFFFF;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            line-height: 1.5;
+            background: var(--cream);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 1;
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        .slide-header {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: var(--white);
+            padding: 1.2rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .slide-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            font-family: Georgia, serif;
+        }
+
+        .slide-header .subtitle {
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        .slide-content {
+            flex: 1;
+            overflow: hidden;
+            padding: 1.2rem 1.5rem;
+            padding-bottom: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1400px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 2px solid #F0E6D9;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h3 i {
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+            font-size: 0.85rem;
+        }
+
+        .card ul li {
+            padding: 0.25rem 0;
+            padding-left: 1.3rem;
+            position: relative;
+        }
+
+        .card ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--white);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            margin: 0.2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .feature-highlight {
+            background: var(--white);
+            border-left: 4px solid var(--primary);
+            padding: 0.8rem;
+            margin: 0.6rem 0;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .feature-highlight h3 {
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            font-size: 1rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin: 1.2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: var(--white);
+            padding: 1.2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            font-family: Georgia, serif;
+        }
+
+        .stat-label {
+            color: var(--secondary);
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Navigation Controls */
+        .nav-controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn {
+            background: var(--secondary);
+            color: var(--white);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-counter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            font-weight: 600;
+            padding: 0 1rem;
+        }
+
+        .slide-indicator {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .indicator-dot.active {
+            background: var(--primary);
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            box-shadow: var(--shadow);
+            z-index: 99;
+        }
+
+        .keyboard-hint i {
+            color: var(--primary);
+            margin: 0 0.3rem;
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-controls {
+                bottom: 1rem;
+                padding: 0.8rem 1.5rem;
+            }
+
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .keyboard-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="keyboard-hint">
+        Use <i class="fas fa-arrow-left"></i> <i class="fas fa-arrow-right"></i> arrow keys or buttons to navigate
+    </div>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1><i class="fas fa-birthday-cake"></i> Caramellize Bakery</h1>
+                <p class="subtitle">Full-Stack E-Commerce Bakery Platform</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-wrapper">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <p style="font-size: 1.3rem; color: var(--secondary); margin-bottom: 1rem;">
+                            ASP.NET Core Web API + ASP.NET Core MVC
+                        </p>
+                        <p style="font-size: 1.05rem;">
+                            A modern, full-featured e-commerce platform for an artisan bakery with user authentication, 
+                            product management, shopping cart, order processing, payment integration, and admin dashboard.
+                        </p>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-number">2</span>
+                            <span class="stat-label">Projects (API + MVC)</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">10+</span>
+                            <span class="stat-label">Database Tables</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">API Endpoints</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">30+</span>
+                            <span class="stat-label">MVC Views</span>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: var(--white); border-radius: 12px; box-shadow: var(--shadow);">
+                        <h3 style="color: var(--secondary); margin-bottom: 0.8rem;">
+                            <i class="fas fa-graduation-cap"></i> Final Year Project
+                        </h3>
+                        <p style="font-size: 1.05rem; color: var(--dark);">
+                            Demonstrating practical application of software engineering principles and modern web development technologies
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Architecture -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1><i class="fas fa-project-diagram"></i> System Architecture</h1>
+                <p class="subtitle">Three-tier architecture with API and MVC</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-wrapper">
+                    <div class="grid">
+                        <div class="card">
+                            <h3><i class="fas fa-server"></i> Backend API</h3>
+                            <ul>
+                                <li>ASP.NET Core 8.0 Web API</li>
+                                <li>RESTful architecture</li>
+                                <li>JWT authentication</li>
+                                <li>Entity Framework Core</li>
+                                <li>Repository pattern</li>
+                                <li>DTO pattern</li>
+                                <li>SQL Server database</li>
+                                <li>Swagger documentation</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-globe"></i> Frontend MVC</h3>
+                            <ul>
+                                <li>ASP.NET Core 8.0 MVC</li>
+                                <li>Razor Views</li>
+                                <li>Cookie-based authentication</li>
+                                <li>Bootstrap 5</li>
+                                <li>Custom CSS & JavaScript</li>
+                                <li>Responsive design</li>
+                                <li>Client-side validation</li>
+                                <li>Session management</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-database"></i> Data Layer</h3>
+                            <ul>
+                                <li>SQL Server</li>
+                                <li>Code-First migrations</li>
+                                <li>Entity relationships</li>
+                                <li>ASP.NET Core Identity</li>
+                                <li>Data seeding</li>
+                                <li>Transaction support</li>
+                                <li>Complex queries</li>
+                                <li>Foreign key constraints</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Key Features -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1><i class="fas fa-star"></i> Key Features</h1>
+                <p class="subtitle">Complete e-commerce functionality</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-wrapper">
+                    <div class="grid">
+                        <div class="card">
+                            <h3><i class="fas fa-user-shield"></i> Authentication</h3>
+                            <ul>
+                                <li>User registration with email confirmation</li>
+                                <li>Secure login/logout</li>
+                                <li>JWT token management</li>
+                                <li>Role-based access control</li>
+                                <li>Password reset</li>
+                                <li>Profile management</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-shopping-bag"></i> Products</h3>
+                            <ul>
+                                <li>Product catalog with categories</li>
+                                <li>Multiple product images</li>
+                                <li>Stock management</li>
+                                <li>Search & filtering</li>
+                                <li>Sorting options</li>
+                                <li>Related products</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
+                            <ul>
+                                <li>Session-based cart</li>
+                                <li>Real-time stock validation</li>
+                                <li>Quantity management</li>
+                                <li>Discount code system</li>
+                                <li>Order summary</li>
+                                <li>Cart persistence</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-credit-card"></i> Payments</h3>
+                            <ul>
+                                <li>Stripe payment gateway</li>
+                                <li>Secure checkout</li>
+                                <li>Payment confirmation</li>
+                                <li>Order status tracking</li>
+                                <li>Payment history</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h3>
+                            <ul>
+                                <li>Product CRUD operations</li>
+                                <li>Category management</li>
+                                <li>Order management</li>
+                                <li>User management</li>
+                                <li>Discount codes</li>
+                                <li>Review moderation</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-star-half-alt"></i> Reviews</h3>
+                            <ul>
+                                <li>Customer reviews</li>
+                                <li>Star ratings (1-5)</li>
+                                <li>Verified buyer badge</li>
+                                <li>Review eligibility check</li>
+                                <li>Featured testimonials</li>
+                                <li>Average ratings</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Technology Stack -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1><i class="fas fa-code"></i> Technology Stack</h1>
+                <p class="subtitle">Modern .NET ecosystem and web technologies</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-wrapper">
+                    <div class="feature-highlight">
+                        <h3><i class="fas fa-server"></i> Backend Technologies</h3>
+                        <div>
+                            <span class="tech-badge">.NET 8.0</span>
+                            <span class="tech-badge">ASP.NET Core Web API</span>
+                            <span class="tech-badge">Entity Framework Core</span>
+                            <span class="tech-badge">SQL Server</span>
+                            <span class="tech-badge">JWT Authentication</span>
+                            <span class="tech-badge">ASP.NET Core Identity</span>
+                            <span class="tech-badge">AutoMapper</span>
+                            <span class="tech-badge">MailKit</span>
+                            <span class="tech-badge">Stripe SDK</span>
+                            <span class="tech-badge">Swagger/OpenAPI</span>
+                        </div>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3><i class="fas fa-palette"></i> Frontend Technologies</h3>
+                        <div>
+                            <span class="tech-badge">ASP.NET Core MVC</span>
+                            <span class="tech-badge">Razor Views</span>
+                            <span class="tech-badge">Bootstrap 5</span>
+                            <span class="tech-badge">JavaScript ES6+</span>
+                            <span class="tech-badge">HTML5 & CSS3</span>
+                            <span class="tech-badge">Font Awesome</span>
+                            <span class="tech-badge">jQuery</span>
+                            <span class="tech-badge">Responsive Design</span>
+                        </div>
+                    </div>
+
+                    <div class="feature-highlight">
+                        <h3><i class="fas fa-tools"></i> Development Tools & Practices</h3>
+                        <div>
+                            <span class="tech-badge">Visual Studio 2022</span>
+                            <span class="tech-badge">Git Version Control</span>
+                            <span class="tech-badge">NuGet Package Manager</span>
+                            <span class="tech-badge">Code-First Migrations</span>
+                            <span class="tech-badge">RESTful API Design</span>
+                            <span class="tech-badge">MVC Pattern</span>
+                            <span class="tech-badge">Repository Pattern</span>
+                            <span class="tech-badge">DTO Pattern</span>
+                            <span class="tech-badge">Dependency Injection</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Database & Security -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1><i class="fas fa-shield-alt"></i> Database & Security</h1>
+                <p class="subtitle">Enterprise-level data management and security</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-wrapper">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <h3 style="color: var(--secondary); margin-bottom: 1rem; font-size: 1.3rem;">
+                                <i class="fas fa-table"></i> Database Schema
+                            </h3>
+                            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                                <div class="card">
+                                    <h3><i class="fas fa-users"></i> Users & Auth</h3>
+                                    <ul>
+                                        <li>AppUser (Identity)</li>
+                                        <li>AspNetRoles</li>
+                                        <li>AspNetUserRoles</li>
+                                        <li>User Claims</li>
+                                    </ul>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-box"></i> Products</h3>
+                                    <ul>
+                                        <li>Products</li>
+                                        <li>Categories</li>
+                                        <li>ProductImages</li>
+                                        <li>Stock tracking</li>
+                                    </ul>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-receipt"></i> Orders</h3>
+                                    <ul>
+                                        <li>Orders</li>
+                                        <li>OrderItems</li>
+                                        <li>DiscountCodes</li>
+                                        <li>Payment info</li>
+                                    </ul>
+                                </div>
+
+                                <div class="card">
+                                    <h3><i class="fas fa-comment"></i> Reviews</h3>
+                                    <ul>
+                                        <li>Customer reviews</li>
+                                        <li>Star ratings</li>
+                                        <li>Product links</li>
+                                        <li>User associations</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style="color: var(--secondary); margin-bottom: 1rem; font-size: 1.3rem;">
+                                <i class="fas fa-lock"></i> Security Features
+                            </h3>
+                            <div class="feature-highlight">
+                                <h3><i class="fas fa-user-shield"></i> Authentication</h3>
+                                <ul style="margin-top: 0.5rem; font-size: 0.9rem;">
+                                    <li>JWT token-based (API)</li>
+                                    <li>Cookie-based (MVC)</li>
+                                    <li>Role-based authorization</li>
+                                    <li>Email confirmation</li>
+                                    <li>Secure password hashing</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-highlight">
+                                <h3><i class="fas fa-shield-alt"></i> Data Protection</h3>
+                                <ul style="margin-top: 0.5rem; font-size: 0.9rem;">
+                                    <li>Anti-forgery tokens</li>
+                                    <li>HTTPS enforcement</li>
+                                    <li>SQL injection prevention</li>
+                                    <li>XSS protection</li>
+                                    <li>CORS configuration</li>
+                                </ul>
+                            </div>
+
+                            <div class="feature-highlight">
+                                <h3><i class="fas fa-credit-card"></i> Payment Security</h3>
+                                <ul style="margin-top: 0.5rem; font-size: 0.9rem;">
+                                    <li>Stripe integration</li>
+                                    <li>PCI-DSS compliant</li>
+                                    <li>Secure token handling</li>
+                                    <li>No local card storage</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Project Summary -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1><i class="fas fa-flag-checkered"></i> Project Summary</h1>
+                <p class="subtitle">Comprehensive full-stack e-commerce solution</p>
+            </div>
+            <div class="slide-content">
+                <div class="content-wrapper">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h2 style="color: var(--secondary); margin-bottom: 1rem; font-size: 2rem;">
+                            <i class="fas fa-birthday-cake"></i> Caramellize Bakery
+                        </h2>
+                        <p style="font-size: 1.1rem; line-height: 1.7; max-width: 900px; margin: 0 auto;">
+                            A comprehensive e-commerce solution demonstrating proficiency in full-stack web development 
+                            with ASP.NET Core. The project showcases modern architecture patterns, security best practices, 
+                            third-party integrations, and responsive UI design.
+                        </p>
+                    </div>
+
+                    <div class="grid">
+                        <div class="card">
+                            <h3><i class="fas fa-check-circle" style="color: var(--primary);"></i> Backend Excellence</h3>
+                            <ul>
+                                <li>RESTful API design</li>
+                                <li>Clean architecture</li>
+                                <li>Proper authentication</li>
+                                <li>Database optimization</li>
+                                <li>Error handling</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-check-circle" style="color: var(--primary);"></i> Frontend Quality</h3>
+                            <ul>
+                                <li>Responsive design</li>
+                                <li>User-friendly interface</li>
+                                <li>Modern aesthetics</li>
+                                <li>Smooth interactions</li>
+                                <li>Accessibility</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h3><i class="fas fa-check-circle" style="color: var(--primary);"></i> Business Features</h3>
+                            <ul>
+                                <li>Complete shopping flow</li>
+                                <li>Payment processing</li>
+                                <li>Admin management</li>
+                                <li>Customer engagement</li>
+                                <li>Order tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: var(--white); border-radius: 12px; box-shadow: var(--shadow);">
+                        <h3 style="color: var(--secondary); margin-bottom: 0.8rem; font-size: 1.3rem;">
+                            <i class="fas fa-graduation-cap"></i> Final Year Project Achievement
+                        </h3>
+                        <p style="font-size: 1.05rem; line-height: 1.7;">
+                            This project demonstrates practical application of software engineering principles, 
+                            web development best practices, and modern technology stack in building a production-ready 
+                            e-commerce application.
+                        </p>
+                        <p style="margin-top: 1rem; color: var(--primary); font-size: 1.3rem; font-weight: 600;">
+                            Thank You!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+        </div>
+        
+        <div class="slide-indicator" id="slideIndicator"></div>
+        
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        // Initialize indicators
+        const indicatorContainer = document.getElementById('slideIndicator');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'indicator-dot';
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(i);
+            indicatorContainer.appendChild(dot);
+        }
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // Update indicators
+            document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+
+            // Update counter
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('totalSlides').textContent = totalSlides;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            const newSlide = currentSlide + direction;
+            if (newSlide >= 0 && newSlide < totalSlides) {
+                currentSlide = newSlide;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'Home') {
+                goToSlide(0);
+            } else if (e.key === 'End') {
+                goToSlide(totalSlides - 1);
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
